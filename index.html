@@ -104,7 +104,7 @@ pre.file{white-space:pre-wrap;word-break:break-all;background:#0a2c22;border-rad
   <button class="icon-btn" id="mute" type="button" aria-label="Sound on"></button>
   <main id="view" class="view"></main>
 </div>
-<script src="draw.js"></script>
+<script>document.write('<script src="draw.js?t=' + Date.now() + '"><\/script>');</script>
 <script>
 {
 /* ======================= SETTINGS ======================= */
@@ -113,7 +113,7 @@ const ORGANISER = 'Laurence';
 const ADULT_BUDGET = 'R200 – R250';
 const KID_BUDGET = 'R50';
 // Optional: put your GitHub Pages link here so WhatsApp messages always use it.
-const SITE_URL = '';
+const SITE_URL = 'https://swartkatb87.github.io/secret-santa/';
 const PEOPLE = [
   {id:'braam',    name:'Braam',    partner:'hannelie', role:'Oupa Kersvader'},
   {id:'hannelie', name:'Hannelie', partner:'braam',    role:'Ouma Kersfees'},
