@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0e3b2e">
+<title>Secret Santa 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm family Christmas, playful
+   IDEA: a sealed Christmas envelope you open in secret
+   PICTURE: the family's own cartoon characters + envelope
+   COLOUR and TYPE: pine green, gold, cranberry; DM Serif Display + Inter
+   LAYOUT: one phone column, big touch targets */
+:root{--bg:#0e3b2e;--card:#164d3d;--card2:#1d5c49;--line:#2a6b57;--ink:#f6f1e7;--muted:#c9dcd2;--gold:#f2c14e;--red:#c8102e;--paper:#fffaf0;--dark:#173328}
+*{box-sizing:border-box;min-width:0}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+h1,h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.05;margin:0}
+button,input{font:inherit}
+.app{position:relative;max-width:460px;margin:0 auto;min-height:100vh;min-height:100dvh;isolation:isolate;overflow:hidden;display:flex;flex-direction:column}
+.sky{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+.snow{position:absolute;top:-12px;border-radius:50%;background:#fff;opacity:.5;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(110vh)}}
+.lights{position:absolute;left:0;top:0;width:100%;height:44px;pointer-events:none;z-index:5}
+.tw{animation:tw 1.6s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:1}to{opacity:.35}}
+.sleigh{position:absolute;top:150px;left:0;animation:fly 16s linear infinite}
+@keyframes fly{from{transform:translateX(-230px)}50%{transform:translateX(120px) translateY(-12px)}to{transform:translateX(520px) translateY(4px)}}
+.bob{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.peek{animation:peek 3.5s ease-in-out infinite}
+@keyframes peek{0%,60%,100%{transform:translateY(0)}75%{transform:translateY(8px)}}
+.view{flex:1;display:flex;flex-direction:column;padding:56px 18px 24px;gap:14px}
+.eyebrow{font-size:13px;font-weight:700;color:var(--gold)}
+.muted{color:var(--muted);font-size:14px}
+.small{font-size:13px;color:var(--muted)}
+.center{text-align:center;align-items:center}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-weight:700;font-size:16px;cursor:pointer;text-align:center;text-decoration:none}
+.btn:focus-visible,.tile:focus-visible,input:focus-visible,.icon-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.btn-gold{background:var(--gold);color:var(--dark)}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;border:1px solid #5f8f7f;color:var(--ink)}
+.btn-wa{background:#25d366;color:#062a14}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:10px;font-size:14px}
+.banner{background:var(--gold);color:var(--dark);border-radius:12px;padding:10px 12px;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner button{background:var(--dark);color:var(--gold);border:0;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:8px 6px 10px;height:172px;color:var(--ink);cursor:pointer;overflow:hidden}
+.tile img{width:100%;height:124px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));transition:transform .2s}
+.tile:hover img{transform:scale(1.05)}
+.pill{font-size:15px;font-weight:700;background:var(--bg);border:1px solid var(--gold);border-radius:999px;padding:3px 12px}
+.section{font-size:13px;font-weight:700;color:var(--gold);margin-top:6px}
+.pins{display:flex;gap:10px;justify-content:center}
+.pinbox{width:58px;height:66px;border-radius:12px;background:var(--card);border:2px solid transparent;font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--dark)}
+.pinbox.filled{background:#f6f1e7}
+.pinbox.cur{border-color:var(--gold)}
+.pin-wrap{position:relative}
+.pin-wrap input{position:absolute;inset:0;opacity:0;width:100%;height:100%;font-size:16px;cursor:pointer}
+.err{color:#ffb3bd;font-weight:700;font-size:14px;min-height:21px}
+.shake-x{animation:sx .4s}
+@keyframes sx{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.elfbtn{position:relative;width:100%;margin-top:44px}
+.elfbtn .btn{position:relative;z-index:1}
+.elfbtn svg{position:absolute;right:22px;top:-58px;z-index:2}
+/* envelope */
+.env{position:relative;width:300px;height:480px;perspective:900px;margin:0 auto}
+.env.shake{animation:shake .7s ease-in-out}
+@keyframes shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-4deg) translateX(-4px)}30%{transform:rotate(4deg) translateX(4px)}45%{transform:rotate(-3deg)}60%{transform:rotate(3deg)}75%{transform:rotate(-1.5deg)}90%{transform:rotate(1deg)}}
+.env .back{position:absolute;left:0;top:300px;width:300px;height:180px;border-radius:14px;background:#d9cfbd}
+.env .pocket{position:absolute;left:0;top:300px;z-index:3}
+.flap{position:absolute;left:0;top:300px;z-index:4;transform-origin:50% 0;transition:transform .6s ease .7s,z-index 0s 1s}
+.flap.open{transform:rotateX(180deg);z-index:1}
+.card{position:absolute;left:20px;top:315px;width:260px;z-index:2;transition:transform .8s cubic-bezier(.2,.9,.3,1.2) 1.25s}
+.card.open{transform:translateY(-180px)}
+.card .inner{background:var(--paper);color:var(--dark);border-radius:14px;border-top:8px solid var(--red);padding:14px 12px 18px;display:flex;flex-direction:column;gap:6px;align-items:center;box-shadow:0 8px 20px rgba(0,0,0,.25);text-align:center}
+.card .who{font-family:'DM Serif Display',Georgia,serif;font-size:44px;line-height:1.05;color:var(--bg);overflow-wrap:anywhere}
+.budget{background:var(--bg);color:var(--gold);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;white-space:nowrap}
+.pop{position:absolute;left:70px;top:0;width:160px;height:134px;object-fit:contain;z-index:6;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));transform:scale(0);opacity:0;transition:transform .5s cubic-bezier(.3,1.6,.5,1) 1.95s,opacity .2s 1.95s}
+.pop.open{transform:scale(1);opacity:1}
+.conf{position:absolute;opacity:0;border-radius:2px;z-index:7}
+.conf.open{animation:burst 1.3s ease-out forwards}
+@keyframes burst{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg)}}
+.icon-btn{position:absolute;top:48px;right:12px;z-index:20;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:rgba(14,59,46,.85);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
+/* organiser */
+.panel{background:var(--card);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px;min-height:48px}
+.row .nm{flex:1;min-width:0;font-weight:600}
+.code{font-family:ui-monospace,Menlo,monospace;color:var(--gold);letter-spacing:2px}
+.tick{color:#7fe08a;font-size:13px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input{background:#f6f1e7;color:var(--dark);border:0;border-radius:10px;padding:12px;font-size:20px;letter-spacing:6px;text-align:center;width:150px}
+.rules li{margin:2px 0}
+pre.file{white-space:pre-wrap;word-break:break-all;background:#0a2c22;border-radius:10px;padding:10px;font-size:11px;max-height:120px;overflow:auto;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.snow,.tw,.sleigh,.bob,.peek,.env.shake{animation:none}.flap,.card,.pop{transition:none}.conf.open{animation:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <svg class="lights" id="lights" viewBox="0 0 460 44" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <button class="icon-btn" id="mute" type="button" aria-label="Sound on"></button>
+  <main id="view" class="view"></main>
+</div>
+<script src="draw.js"></script>
+<script>
+{
+/* ======================= SETTINGS ======================= */
+const YEAR = '2026';
+const ORGANISER = 'Laurence';
+const ADULT_BUDGET = 'R200 – R250';
+const KID_BUDGET = 'R50';
+// Optional: put your GitHub Pages link here so WhatsApp messages always use it.
+const SITE_URL = '';
+const PEOPLE = [
+  {id:'braam',    name:'Braam',    partner:'hannelie', role:'Oupa Kersvader'},
+  {id:'hannelie', name:'Hannelie', partner:'braam',    role:'Ouma Kersfees'},
+  {id:'laurence', name:'Laurence', partner:'roche',    role:'the kitchen elf'},
+  {id:'roche',    name:'Roche',    partner:'laurence', role:'a cheeky elf'},
+  {id:'karien',   name:'Karien',   partner:'harlen',   role:'a cheeky elf'},
+  {id:'harlen',   name:'Harlen',   partner:'karien',   role:'the braai elf'},
+  {id:'xanthe',   name:'Xanthe',   partner:'wj',       role:'the snow princess'},
+  {id:'wj',       name:'WJ',       partner:'xanthe',   role:'the fishing reindeer'},
+  {id:'griet',    name:'Griet',    role:'the Christmas angel'},
+  {id:'doors',    name:'Doors',    role:'the queen of Christmas'},
+  {id:'everson',  name:'Everson',  role:'the tangled reindeer'},
+  {id:'daario',   name:'Daario',   kid:true, role:'a little elf'},
+  {id:'aiden',    name:'Aiden',    kid:true, role:'a little elf'}
+];
+// How the organiser screen groups people for sending
+const SEND_GROUPS = [['braam','hannelie'],['laurence','roche'],['karien','harlen'],['xanthe','wj'],['griet'],['doors'],['everson'],['daario','aiden']];
+/* ======================================================== */
+
+const byId = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
+const adults = PEOPLE.filter(p => !p.kid);
+const img = id => 'img/' + id + '.webp';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return localStorage.getItem('ss_' + k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem('ss_' + k, v); } catch(e){} },
+  del(k){ try { localStorage.removeItem('ss_' + k); } catch(e){} }
+};
+
+/* ---------- crypto: each match is locked with that person's PIN ---------- */
+const te = new TextEncoder(), td = new TextDecoder();
+const b64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function keyFor(pin, salt){
+  const base = await crypto.subtle.importKey('raw', te.encode('santa-' + pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:120000, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+async function lock(obj, pin){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, await keyFor(pin, salt), te.encode(JSON.stringify(obj)));
+  return {s:b64(salt), i:b64(iv), c:b64(ct)};
+}
+async function unlock(box, pin){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:unb64(box.i)}, await keyFor(pin, unb64(box.s)), unb64(box.c));
+  return JSON.parse(td.decode(pt));
+}
+
+/* ---------- the draw ---------- */
+const rnd = n => { const a = new Uint32Array(1); const lim = Math.floor(4294967296 / n) * n; do { crypto.getRandomValues(a); } while (a[0] >= lim); return a[0] % n; };
+function shuffle(arr){ const a = arr.slice(); for (let i = a.length - 1; i > 0; i--){ const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function allowed(g, r){ return g.id !== r.id && g.partner !== r.id && !r.kid; }
+function makeMatches(){
+  for (let t = 0; t < 20000; t++){
+    const perm = shuffle(adults);
+    if (adults.every((g, i) => allowed(g, perm[i]))){
+      const m = {}; adults.forEach((g, i) => m[g.id] = perm[i].id);
+      const kids = PEOPLE.filter(p => p.kid), picks = shuffle(adults);
+      kids.forEach((k, i) => m[k.id] = picks[i].id); // kids get different adults
+      return m;
+    }
+  }
+  throw new Error('No valid draw found');
+}
+function makePins(){
+  const used = new Set(), pins = {};
+  PEOPLE.forEach(p => { let x; do { x = String(1000 + rnd(9000)); } while (used.has(x) || /^(\d)\1{3}$/.test(x) || x === '1234'); used.add(x); pins[p.id] = x; });
+  return pins;
+}
+async function buildDraw(adminPin){
+  const matches = makeMatches(), pins = makePins(), people = {};
+  for (const p of PEOPLE) people[p.id] = await lock({r: matches[p.id]}, pins[p.id]);
+  return {v:1, made:new Date().toISOString(), people, admin: await lock({pins}, adminPin)};
+}
+function currentDraw(){
+  const live = window.SANTA_DRAW || null;
+  let test = null; try { test = JSON.parse(store.get('test_draw') || 'null'); } catch(e){}
+  if (test && live && test.made === live.made){ store.del('test_draw'); test = null; }
+  if (test) return {draw:test, test:true};
+  return {draw:live, test:false};
+}
+
+/* ---------- sound (made in the browser, no files) ---------- */
+let AC = null, muted = store.get('muted') === '1';
+function ac(){ if (!AC){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function tone(c, t, f, d, v, type='sine', f2){ const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(c.destination); o.start(t); o.stop(t + d + 0.05); }
+function noise(c, t, d, v, f1, f2){ const n = c.createBuffer(1, c.sampleRate * d, c.sampleRate), ch = n.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; const s = c.createBufferSource(); s.buffer = n; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2; bp.frequency.setValueAtTime(f1, t); bp.frequency.exponentialRampToValueAtTime(f2, t + d); const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + d * 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + d); s.connect(bp).connect(g).connect(c.destination); s.start(t); s.stop(t + d); }
+const SFX = {
+  bells(c, t){ for (let k = 0; k < 11; k++){ const tt = t + k * 0.065; tone(c, tt, 2400 + rnd(1800), 0.14, 0.05); tone(c, tt + 0.01, 3600 + rnd(1600), 0.1, 0.03, 'triangle'); noise(c, tt, 0.05, 0.03, 6000, 9000); } },
+  whoosh(c, t){ noise(c, t, 0.55, 0.25, 300, 3200); },
+  pop(c, t){ tone(c, t, 700, 0.14, 0.35, 'sine', 140); },
+  chime(c, t){ [1047, 1319, 1568, 2093].forEach((f, i) => { tone(c, t + i * 0.11, f, 0.9, 0.12, 'triangle'); tone(c, t + i * 0.11, f * 2, 0.5, 0.03); }); },
+  tap(c, t){ tone(c, t, 1200, 0.06, 0.06, 'triangle'); },
+  nope(c, t){ tone(c, t, 220, 0.18, 0.12, 'square', 160); }
+};
+function play(list){ if (muted) return; const c = ac(); if (!c) return; const t0 = c.currentTime + 0.02; list.forEach(([n, at]) => SFX[n](c, t0 + at)); }
+function drawMute(){ const b = $('#mute'); b.setAttribute('aria-label', muted ? 'Sound off, tap to turn on' : 'Sound on, tap to mute');
+  b.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>' + (muted ? '<path d="M17 9l5 6M22 9l-5 6"/>' : '<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>') + '</svg>'; }
+$('#mute').addEventListener('click', () => { muted = !muted; store.set('muted', muted ? '1' : '0'); drawMute(); if (!muted) play([['tap', 0]]); });
+
+/* ---------- decorations ---------- */
+function decor(){
+  const cols = ['#ff4d5e','#f2c14e','#4fd1ff','#7fe08a','#ff9f43']; let s = '', pts = [];
+  for (let x = 0; x <= 460; x += 5) pts.push(x + ',' + (7 + 11 * Math.abs(Math.sin(Math.PI * x / 130))).toFixed(0));
+  s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#1d2b25" stroke-width="2"/>';
+  for (let i = 0, x = 14; x < 460; x += 28, i++){ const y = 7 + 11 * Math.abs(Math.sin(Math.PI * x / 130)); s += '<rect x="' + (x - 3) + '" y="' + y.toFixed(0) + '" width="6" height="5" rx="1" fill="#1d2b25"/><ellipse class="tw" style="animation-delay:' + (i % 4) * 0.4 + 's" cx="' + x + '" cy="' + (y + 11).toFixed(0) + '" rx="5" ry="7" fill="' + cols[i % 5] + '"/>'; }
+  $('#lights').innerHTML = s;
+  let sky = '';
+  for (let i = 0; i < 18; i++) sky += '<span class="snow" style="left:' + ((i * 37 + 11) % 100) + '%;width:' + (4 + i % 3 * 2) + 'px;height:' + (4 + i % 3 * 2) + 'px;animation-duration:' + (8 + i % 5 * 2) + 's;animation-delay:-' + (i * 0.9).toFixed(1) + 's"></span>';
+  sky += SLEIGH; $('#sky').innerHTML = sky;
+}
+
+/* ---------- views ---------- */
+let wrong = 0;
+function go(hash){ if (location.hash === hash) route(); else location.hash = hash; }
+window.addEventListener('hashchange', route);
+function route(){
+  const h = location.hash.slice(1);
+  window.scrollTo(0, 0);
+  if (h.startsWith('pin-') && byId[h.slice(4)]) return viewPin(byId[h.slice(4)]);
+  if (h === 'organiser') return viewOrganiser();
+  return viewHome();
+}
+function setView(html){ $('#view').innerHTML = html; }
+
+function testBanner(){
+  const {test} = currentDraw();
+  return test ? '<div class="banner"><span>Test draw: only on this phone</span><button type="button" id="cleartest">Remove test</button></div>' : '';
+}
+function bindTest(){ const b = $('#cleartest'); if (b) b.addEventListener('click', () => { store.del('test_draw'); route(); }); }
+
+function viewHome(){
+  const {draw} = currentDraw();
+  const tile = p => '<button type="button" class="tile" data-id="' + p.id + '" aria-label="' + esc(p.name) + '"><img src="' + img(p.id) + '" alt="" loading="lazy"><span class="pill">' + esc(p.name) + '</span></button>';
+  setView(
+    testBanner() +
+    '<div><div class="eyebrow">Secret Santa ' + YEAR + ' · ' + PEOPLE.length + ' joining</div>' +
+    '<h1 style="font-size:36px;margin-top:4px">Tap your name</h1>' +
+    '<p class="muted" style="margin:6px 0 0">' + (draw ? 'You\'ll need the 4-digit PIN from your WhatsApp message.' : 'The draw hasn\'t been made yet. Check back soon!') + '</p></div>' +
+    '<div class="section">Adults · ' + ADULT_BUDGET + '</div><div class="grid">' + adults.map(tile).join('') + '</div>' +
+    '<div class="section">Kids · ' + KID_BUDGET + '</div><div class="grid">' + PEOPLE.filter(p => p.kid).map(tile).join('') + '</div>' +
+    '<div style="text-align:center;margin-top:8px"><button type="button" class="link" id="org">Organiser</button></div>'
+  );
+  document.querySelectorAll('.tile').forEach(b => b.addEventListener('click', () => { play([['tap', 0]]); go('#pin-' + b.dataset.id); }));
+  $('#org').addEventListener('click', () => go('#organiser'));
+  bindTest();
+}
+
+function viewPin(p){
+  const {draw} = currentDraw();
+  wrong = 0;
+  setView(
+    '<button type="button" class="link" id="back" style="align-self:flex-start;padding-left:0">← Not ' + esc(p.name) + '?</button>' +
+    '<div class="center" style="display:flex;flex-direction:column;gap:12px">' +
+    '<img class="bob" src="' + img(p.id) + '" alt="' + esc(p.name) + ' as ' + esc(p.role) + '" style="width:170px;height:170px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35))">' +
+    '<h1 style="font-size:36px">Hi ' + esc(p.name) + '</h1>' +
+    (draw ?
+      '<label for="pin" class="muted" style="max-width:300px">Enter the 4-digit PIN from your WhatsApp message.</label>' +
+      '<div class="pin-wrap" id="pinwrap"><div class="pins" aria-hidden="true">' + [0,1,2,3].map(i => '<div class="pinbox" data-i="' + i + '"></div>').join('') + '</div>' +
+      '<input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-label="4-digit PIN"></div>' +
+      '<div class="err" id="err" role="alert"></div>'
+      : '<p class="muted">The draw hasn\'t been made yet. ' + esc(ORGANISER) + ' will send you a message when it\'s ready.</p>') +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:10px">' + SNOWMAN + '<div class="panel" style="flex:1;font-size:13px;color:var(--muted)">Using someone else\'s phone? No peeking! Their envelope stays locked, and yours closes again when you tap Hide.</div></div>' +
+    '<div style="flex:1"></div>' +
+    (draw ? '<div class="elfbtn">' + ELF + '<button type="button" class="btn btn-gold" id="open" disabled>Open my envelope</button></div>' : '') +
+    '<p class="small" style="text-align:center;margin:0">Lost your PIN? Ask ' + esc(ORGANISER) + ' to resend it.</p>'
+  );
+  $('#back').addEventListener('click', () => go('#'));
+  if (!draw) return;
+  const inp = $('#pin'), boxes = document.querySelectorAll('.pinbox'), btn = $('#open'), err = $('#err');
+  const paint = () => { const v = inp.value; boxes.forEach((b, i) => { b.textContent = v[i] ? '•' : ''; b.classList.toggle('filled', !!v[i]); b.classList.toggle('cur', i === v.length); }); btn.disabled = v.length !== 4; };
+  inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D/g, '').slice(0, 4); err.textContent = ''; paint(); if (inp.value.length === 4) tryOpen(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryOpen(); });
+  btn.addEventListener('click', tryOpen);
+  paint(); setTimeout(() => inp.focus(), 100);
+  let busy = false;
+  async function tryOpen(){
+    if (busy || inp.value.length !== 4) return;
+    const lockUntil = +(store.get('lock_' + p.id) || 0);
+    if (Date.now() < lockUntil){ err.textContent = 'Too many tries. Ask ' + ORGANISER + ' for your PIN.'; return; }
+    busy = true; btn.textContent = 'Checking…';
+    try {
+      const res = await unlock(draw.people[p.id], inp.value);
+      viewEnvelope(p, byId[res.r]);
+    } catch(e){
+      wrong++; play([['nope', 0]]);
+      if (wrong >= 5){ store.set('lock_' + p.id, String(Date.now() + 60000)); err.textContent = 'That\'s 5 wrong tries. Ask ' + ORGANISER + ' for your PIN.'; }
+      else err.textContent = 'That PIN doesn\'t match. Try again.';
+      const w = $('#pinwrap'); w.classList.remove('shake-x'); void w.offsetWidth; w.classList.add('shake-x');
+      inp.value = ''; paint(); inp.focus();
+      btn.textContent = 'Open my envelope'; busy = false;
+    }
+  }
+}
+
+function viewEnvelope(giver, rec){
+  const budget = giver.kid ? KID_BUDGET : ADULT_BUDGET;
+  const cols = ['#f2c14e','#c8102e','#7fe08a','#4fd1ff','#ffffff','#ff9f43'];
+  let conf = ''; for (let i = 0; i < 26; i++) conf += '<span class="conf" style="left:' + (140 + rnd(30)) + 'px;top:270px;width:' + (6 + rnd(5)) + 'px;height:' + (4 + rnd(4)) + 'px;background:' + cols[i % 6] + ';--dx:' + (rnd(360) - 180) + 'px;--dy:' + (-40 - rnd(220)) + 'px;animation-delay:' + (2.1 + rnd(30) / 100) + 's"></span>';
+  setView(
+    '<div class="center" style="display:flex;flex-direction:column;gap:10px">' +
+    '<div class="eyebrow">' + esc(giver.name) + '\'s Secret Santa</div>' +
+    '<h1 id="envtitle" style="font-size:38px">Your envelope</h1></div>' +
+    '<div class="env" id="env">' +
+      '<img class="pop" id="popimg" src="' + img(rec.id) + '" alt="' + esc(rec.name) + ' as ' + esc(rec.role) + '">' +
+      '<div class="back"></div>' +
+      '<div class="card" id="card"><div class="inner"><div style="font-size:13px;color:#4a6158;font-weight:600">You are buying a gift for</div><div class="who">' + esc(rec.name) + '</div><div class="budget">Budget ' + budget + '</div></div></div>' +
+      '<svg class="pocket" width="300" height="180" viewBox="0 0 300 180" aria-hidden="true"><path d="M0 14 Q0 0 14 0 L150 98 L286 0 Q300 0 300 14 V166 Q300 180 286 180 H14 Q0 180 0 166 Z" fill="#f6f1e7"/><path d="M0 180 L118 104 M300 180 L182 104" stroke="#e6dccb" stroke-width="3"/></svg>' +
+      '<svg class="flap" id="flap" width="300" height="124" viewBox="0 0 300 124" aria-hidden="true"><path d="M8 0 H292 Q300 0 294 6 L158 116 Q150 122 142 116 L6 6 Q0 0 8 0 Z" fill="#ece3d3" stroke="#d9cfbd" stroke-width="2"/><circle cx="150" cy="104" r="22" fill="#c8102e"/><path d="M150 92 l3.5 8 9 .8 -7 5.6 2.4 8.8 -7.9 -5 -7.9 5 2.4 -8.8 -7 -5.6 9 -.8z" fill="#f2c14e"/></svg>' +
+      conf +
+    '</div>' +
+    '<div style="flex:1"></div>' +
+    '<div id="actions"><div class="elfbtn">' + ELF + '<button type="button" class="btn btn-gold" id="openenv">Tap to open</button></div></div>' +
+    '<p class="small" id="hint" style="text-align:center;margin:0">Make sure nobody is looking at your screen.</p>'
+  );
+  $('#openenv').addEventListener('click', () => {
+    play([['bells', 0], ['whoosh', 0.7], ['pop', 1.95], ['chime', 2.15]]);
+    $('#env').classList.add('shake');
+    ['#flap', '#card', '#popimg'].forEach(s => $(s).classList.add('open'));
+    document.querySelectorAll('.conf').forEach(c => c.classList.add('open'));
+    $('#envtitle').textContent = 'Shh… it\'s a secret!';
+    $('#actions').innerHTML = '<button type="button" class="btn btn-red" id="hide">Hide from screen</button>';
+    $('#hint').textContent = 'Forgot? Open the link again any time with your PIN.';
+    $('#hide').addEventListener('click', () => go('#'));
+  });
+}
+
+/* ---------- organiser ---------- */
+let adminPins = null;
+function siteUrl(){ return SITE_URL || (location.origin + location.pathname).replace(/index\.html$/, ''); }
+function message(ids){
+  const lines = ['🎄 *Secret Santa ' + YEAR + '* 🎁', ''];
+  if (ids.length === 1) lines.push('Hi ' + byId[ids[0]].name + '! Your envelope is ready.');
+  else lines.push('Hi ' + ids.map(i => byId[i].name).join(' & ') + '! Your envelopes are ready.');
+  lines.push('', '1. Open: ' + siteUrl(), '2. Tap your name', '3. Enter your PIN:');
+  ids.forEach(i => lines.push('   ' + byId[i].name + ': *' + adminPins[i] + '*' + (byId[i].kid ? ' (budget ' + KID_BUDGET + ')' : '')));
+  if (ids.some(i => !byId[i].kid)) lines.push('', 'Budget: ' + ADULT_BUDGET);
+  lines.push('Keep it secret! 🤫');
+  return lines.join('\n');
+}
+function sent(){ try { return JSON.parse(store.get('sent') || '{}'); } catch(e){ return {}; } }
+function viewOrganiser(){
+  const {draw} = currentDraw();
+  if (adminPins) return viewSend();
+  if (!draw) return viewMakeDraw(false);
+  setView(
+    '<button type="button" class="link" id="back" style="align-self:flex-start;padding-left:0">← Back</button>' + testBanner() +
+    '<div><div class="eyebrow">Organiser</div><h1 style="font-size:34px;margin-top:4px">Enter your organiser PIN</h1></div>' +
+    '<div class="panel center"><div class="field" style="align-items:center"><label for="apin" class="muted">Organiser PIN</label><input id="apin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></div><div class="err" id="aerr" role="alert"></div><button type="button" class="btn btn-gold" id="aopen">Unlock</button></div>'
+  );
+  bindTest(); $('#back').addEventListener('click', () => go('#'));
+  const go2 = async () => { try { adminPins = (await unlock(draw.admin, $('#apin').value)).pins; viewSend(); } catch(e){ $('#aerr').textContent = 'Wrong organiser PIN.'; play([['nope', 0]]); } };
+  $('#aopen').addEventListener('click', go2); $('#apin').addEventListener('keydown', e => { if (e.key === 'Enter') go2(); });
+}
+function viewMakeDraw(redo){
+  setView(
+    '<button type="button" class="link" id="back" style="align-self:flex-start;padding-left:0">← Back</button>' +
+    '<div><div class="eyebrow">Organiser · Step 1 of 3</div><h1 style="font-size:34px;margin-top:4px">' + (redo ? 'Make a new draw' : 'Make the draw') + '</h1></div>' +
+    (redo ? '<div class="banner"><span>A new draw replaces the old one. Everyone gets new PINs.</span></div>' : '') +
+    '<div class="panel"><div style="font-weight:700">' + adults.length + ' adults · ' + (PEOPLE.length - adults.length) + ' kids</div>' +
+    '<ul class="rules muted" style="margin:0;padding-left:18px"><li>Nobody draws themselves or their partner</li><li>Every adult gets one gift from an adult (' + ADULT_BUDGET + ')</li><li>Kids each draw a different adult (' + KID_BUDGET + ')</li><li>Nobody buys for the kids</li></ul></div>' +
+    '<div class="panel"><div class="field"><label for="np1" class="muted">Choose your organiser PIN (4 numbers)</label><input id="np1" type="password" inputmode="numeric" maxlength="4"></div>' +
+    '<div class="field"><label for="np2" class="muted">Type it again</label><input id="np2" type="password" inputmode="numeric" maxlength="4"></div><div class="err" id="merr" role="alert"></div>' +
+    '<button type="button" class="btn btn-gold" id="make">Make the draw</button></div>'
+  );
+  $('#back').addEventListener('click', () => go('#'));
+  $('#make').addEventListener('click', async () => {
+    const a = $('#np1').value, b = $('#np2').value;
+    if (!/^\d{4}$/.test(a)) return $('#merr').textContent = 'Use exactly 4 numbers.';
+    if (a !== b) return $('#merr').textContent = 'The two PINs don\'t match.';
+    $('#make').disabled = true; $('#make').textContent = 'Drawing…';
+    const d = await buildDraw(a);
+    store.set('test_draw', JSON.stringify(d)); store.del('sent');
+    adminPins = (await unlock(d.admin, a)).pins;
+    play([['chime', 0]]);
+    viewPublish(d);
+  });
+}
+function drawFileText(d){ return 'window.SANTA_DRAW = ' + JSON.stringify(d) + ';\n'; }
+function viewPublish(d){
+  const txt = drawFileText(d);
+  setView(
+    '<div><div class="eyebrow">Organiser · Step 2 of 3</div><h1 style="font-size:34px;margin-top:4px">The draw is sealed</h1></div>' +
+    '<div class="panel"><div>13 envelopes made. Every match is locked with that person\'s PIN, so <b style="color:var(--gold)">not even you can see them</b>.</div>' +
+    '<div class="small">It works on this phone now, so you can test it. To make it live for everyone, put the file <b>draw.js</b> on your website (replace the old one).</div>' +
+    '<button type="button" class="btn btn-gold" id="dl">Download draw.js</button><button type="button" class="btn btn-ghost" id="cp">Copy file text</button><pre class="file">' + esc(txt.slice(0, 400)) + '…</pre></div>' +
+    '<button type="button" class="btn btn-gold" id="next">Next: send the PINs</button>'
+  );
+  $('#dl').addEventListener('click', () => { try { const u = URL.createObjectURL(new Blob([txt], {type:'text/javascript'})); const a = document.createElement('a'); a.href = u; a.download = 'draw.js'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); } catch(e){ alertNote('Download blocked here. Use Copy file text.'); } });
+  $('#cp').addEventListener('click', async () => { try { await navigator.clipboard.writeText(txt); $('#cp').textContent = 'Copied ✓'; } catch(e){ $('#cp').textContent = 'Copy blocked here'; } });
+  $('#next').addEventListener('click', viewSend);
+}
+function alertNote(t){ const p = document.createElement('div'); p.className = 'banner'; p.textContent = t; $('#view').prepend(p); }
+function viewSend(){
+  const s = sent(), n = Object.keys(s).filter(k => s[k]).length;
+  const row = id => { const p = byId[id]; return '<div class="row"><div class="nm">' + esc(p.name) + ' <span class="code">' + adminPins[id] + '</span><div class="tick">' + (s[id] ? '✓ Sent' : '') + '</div></div>' +
+    '<a class="btn btn-wa" style="width:auto;padding:10px 14px;font-size:14px" target="_blank" rel="noopener" data-send="' + id + '" href="https://wa.me/?text=' + encodeURIComponent(message([id])) + '">WhatsApp</a></div>'; };
+  setView(
+    '<button type="button" class="link" id="back" style="align-self:flex-start;padding-left:0">← Back to names</button>' + testBanner() +
+    '<div><div class="eyebrow">Organiser · Step 3 of 3</div><h1 style="font-size:34px;margin-top:4px">Send each person their PIN</h1>' +
+    '<p class="muted" style="margin:6px 0 0">' + n + ' of ' + PEOPLE.length + ' sent. Each WhatsApp button lets you pick any chat, e.g. Harlen\'s PIN to Karien. This screen never shows who drew who.</p></div>' +
+    SEND_GROUPS.map(g => '<div class="panel">' + g.map(row).join('') + (g.length > 1 ? '<a class="link" style="align-self:flex-start;padding-left:0" target="_blank" rel="noopener" data-send="' + g.join(',') + '" href="https://wa.me/?text=' + encodeURIComponent(message(g)) + '">Or send both PINs in one message</a>' : '') + '</div>').join('') +
+    '<button type="button" class="btn btn-ghost" id="redo">Make a new draw</button>' +
+    '<button type="button" class="btn btn-ghost" id="lockorg">Lock organiser screen</button>'
+  );
+  bindTest();
+  document.querySelectorAll('[data-send]').forEach(a => a.addEventListener('click', () => { const cur = sent(); a.dataset.send.split(',').forEach(i => cur[i] = true); store.set('sent', JSON.stringify(cur)); setTimeout(viewSend, 400); }));
+  $('#back').addEventListener('click', () => go('#'));
+  $('#redo').addEventListener('click', () => viewMakeDraw(true));
+  $('#lockorg').addEventListener('click', () => { adminPins = null; go('#'); });
+}
+
+/* ---------- drawings ---------- */
+var ELF, SNOWMAN, SLEIGH;
+ELF = '<svg class="peek" width="96" height="74" viewBox="0 0 96 74" role="img" aria-label="A little elf peeking over the button"><path d="M22 40 Q40 4 88 6 Q66 18 72 40 Z" fill="#2e9e5b"/><circle cx="88" cy="7" r="6" fill="#f2c14e"/><rect x="18" y="34" width="58" height="10" rx="5" fill="#f6f1e7"/><path d="M27 54 L10 44 L26 64 Z M69 54 L86 44 L70 64 Z" fill="#f0bf98"/><circle cx="48" cy="58" r="22" fill="#f3c9a4"/><ellipse cx="39" cy="56" rx="6" ry="7" fill="#fff"/><ellipse cx="57" cy="56" rx="6" ry="7" fill="#fff"/><circle cx="35.5" cy="57" r="3" fill="#1b1b1b"/><circle cx="53.5" cy="57" r="3" fill="#1b1b1b"/><path d="M32 47 Q39 44 45 48 M51 48 Q57 44 64 47" stroke="#7a4a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="31" cy="66" r="3.5" fill="#f4a3a3"/><circle cx="65" cy="66" r="3.5" fill="#f4a3a3"/><ellipse cx="26" cy="72" rx="9" ry="6" fill="#c8102e"/><ellipse cx="70" cy="72" rx="9" ry="6" fill="#c8102e"/></svg>';
+SNOWMAN = '<svg width="84" height="104" viewBox="0 0 84 104" role="img" aria-label="A grumpy snowman with crossed arms" style="flex:none"><ellipse cx="42" cy="100" rx="30" ry="4" fill="#0a2c22"/><circle cx="42" cy="76" r="24" fill="#f6f1e7"/><circle cx="42" cy="38" r="18" fill="#f6f1e7"/><rect x="28" y="6" width="28" height="18" rx="2" fill="#1d2b25"/><rect x="22" y="22" width="40" height="5" rx="2" fill="#1d2b25"/><path d="M33 31 L39 34 M51 31 L45 34" stroke="#1b1b1b" stroke-width="2.5" stroke-linecap="round"/><circle cx="36" cy="37" r="2.4" fill="#1b1b1b"/><circle cx="48" cy="37" r="2.4" fill="#1b1b1b"/><path d="M42 41 L56 44 L42 45 Z" fill="#f08a24"/><path d="M35 50 Q42 46 49 50" stroke="#1b1b1b" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M26 54 Q42 62 58 54 L58 59 Q42 67 26 59 Z" fill="#2e9e5b"/><path d="M18 70 L64 82 M66 70 L20 82" stroke="#6b4423" stroke-width="4" stroke-linecap="round"/></svg>';
+SLEIGH = '<svg class="sleigh" width="210" height="64" viewBox="0 0 210 64"><g fill="#f2c14e" opacity=".9"><g><ellipse cx="22" cy="34" rx="14" ry="7"/><circle cx="36" cy="26" r="5"/><path d="M36 21 l-3 -9 M36 21 l4 -8 M33 15 l-4 -2 M39 16 l4 -3" stroke="#f2c14e" stroke-width="2" fill="none"/><path d="M14 40 l-3 9 M20 40 l-1 9 M27 40 l2 9 M31 39 l4 8" stroke="#f2c14e" stroke-width="2.4"/></g><g transform="translate(46 4)"><ellipse cx="22" cy="34" rx="14" ry="7"/><circle cx="36" cy="26" r="5"/><path d="M36 21 l-3 -9 M36 21 l4 -8 M33 15 l-4 -2 M39 16 l4 -3" stroke="#f2c14e" stroke-width="2" fill="none"/><path d="M14 40 l-3 9 M20 40 l-1 9 M27 40 l2 9 M31 39 l4 8" stroke="#f2c14e" stroke-width="2.4"/></g></g><circle cx="83" cy="29" r="3.5" fill="#ff4d5e"/><path d="M10 34 L56 38 L120 44" stroke="#f6f1e7" stroke-width="1.2" fill="none" opacity=".7"/><path d="M118 30 h52 q14 0 14 -16 h6 q0 30 -22 30 h-50 z" fill="#c8102e"/><path d="M112 54 h70 q10 0 12 -8" stroke="#f2c14e" stroke-width="3" fill="none"/><circle cx="150" cy="20" r="9" fill="#f6f1e7"/><path d="M140 22 q10 -22 22 -6 z" fill="#c8102e"/><rect x="128" y="14" width="14" height="14" rx="2" fill="#7fe08a"/><rect x="166" y="16" width="12" height="12" rx="2" fill="#4fd1ff"/></svg>';
+
+window.__santa = {makeMatches, buildDraw, unlock, PEOPLE};
+decor();
+drawMute();
+document.addEventListener('DOMContentLoaded', route);
+if (document.readyState !== 'loading') route();
+}
+</script>
+</body>
+</html>
